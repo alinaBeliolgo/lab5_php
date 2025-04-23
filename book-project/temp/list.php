@@ -4,7 +4,7 @@ require_once '../config/db.php';
 
 
 
-$id = $_GET['id'] ?? null;
+$id = isset($_GET['id']) && is_numeric($_GET['id']) ? (int)$_GET['id'] : null;
 
 
 if (!$id || !is_numeric($id)) {
