@@ -1,36 +1,41 @@
 <?php
 
-require_once __DIR__ . '/../config/db.php';
+require_once '../config/db.php';
 
 
 
 $id = $_GET['id'] ?? null;
 
-if ($id) {
+
+if (!$id || !is_numeric($id)) {
+    echo "Некорректный ID книги.";
+    exit;
+}
+
+try {
     $stmt = $pdo->prepare("
         SELECT books.*, categories.name as category_name
         FROM books
-        JOIN categories ON books.category.id = categories.id
+        JOIN categories ON books.category_id = categories.id
         WHERE books.id = ?
     ");
     $stmt->execute([$id]);
     $book = $stmt->fetch(PDO::FETCH_ASSOC);
 
-
-
-
-    if ($book):
-?>
-        <h2><?= htmlspecialchars($book['title']) ?></h2>
-        <p><strong>Автор:</strong> <?= htmlspecialchars($book['author']) ?></p>
-        <p><strong>Категория:</strong> <?= htmlspecialchars($book['category_name']) ?></p>
-        <p><strong>Описание:</strong> <?= nl2br(htmlspecialchars($book['description'])) ?></p>
-        <p><strong>Дата добавления:</strong> <?= htmlspecialchars($book['created_at']) ?></p>
-        <a href="?page=index">Назад к списку</a>
-<?php
-    else:
+    if (!$book) {
         echo "Книга не найдена.";
-    endif;
-} else {
-    echo "ID не указан.";
+        exit;
+    }
+} catch (PDOException $e) {
+    echo "Ошибка при загрузке книги: " . htmlspecialchars($e->getMessage());
+    exit;
 }
+?>
+
+<h2><?= htmlspecialchars($book['title']) ?></h2>
+<p><strong>Автор:</strong> <?= htmlspecialchars($book['author']) ?></p>
+<p><strong>Категория:</strong> <?= htmlspecialchars($book['category_name']) ?></p>
+<p><strong>Описание:</strong> <?= nl2br(htmlspecialchars($book['description'])) ?></p>
+<p><strong>Дата добавления:</strong> <?= htmlspecialchars($book['created_at']) ?></p>
+
+<a href="index.php?route=index">Назад</a>

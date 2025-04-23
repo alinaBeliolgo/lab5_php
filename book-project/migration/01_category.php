@@ -11,7 +11,6 @@ try {
         )"
     );
 
-    echo "Таблица 'categories' успешно создана.\n";
 
    // Добавим стартовые категории
    $defaultCategories = ['Фантастика', 'Роман', 'Детектив', 'Научная литература', 'История'];
@@ -20,9 +19,6 @@ try {
        $stmt = $pdo->prepare("INSERT OR IGNORE INTO categories (name) VALUES (:name)");
        $stmt->execute([':name' => $name]);
    }
-
-   echo "Категории добавлены.\n";
-
 
 
 } catch (PDOException $e) {

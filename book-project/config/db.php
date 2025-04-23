@@ -16,9 +16,13 @@ try {
     $pdo->exec("CREATE TABLE IF NOT EXISTS books (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         title TEXT NOT NULL,
-        author TEXT NOT NULL
+        author TEXT NOT NULL,
+        category_id INTEGER NOT NULL,
+        description TEXT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (category_id) REFERENCES categories(id)
     )");
 
 }catch (PDOException $e) {
-    die("Error connection: " . $e->getMessage());
+    die("Ошибка подключения к базе данных: " . $e->getMessage());
 }
