@@ -1,13 +1,29 @@
 <?php
 
+/**
+ * Логика и шаблон объединены в одном файле, так как:
+ * 1. При разделении логики и шаблона форма переставала работать корректно (не сохраняла книгу).
+ * 2. Проблемы с передачей данных между контроллером и шаблоном усложняли реализацию.
+ * 3. Для упрощения и устранения ошибок было принято решение оставить всё в одном файле.
+ */
 require_once '../config/db.php';
 
 require_once '../migration/01_category.php';
 
 require_once '../migration/02_books.php';
 
+
+
 $message = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    /**
+     * Получение данных из формы.
+     * @var string $title Название книги.
+     * @var string $author Автор книги.
+     * @var string $category_id Идентификатор категории книги.
+     * @var string $description Описание книги.
+     * @var string $created_at Дата добавления книги.
+     */
     $title = trim($_POST['title']);
     $author = trim($_POST['author']);
     $category_id = $_POST['category'];
@@ -15,6 +31,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $created_at = $_POST['created_at'];
 
 
+    /**
+     * Валидация данных формы.
+     */
     if ($title === '' || $author === '' || $category_id === '' || $description === '' || $created_at === '') {
         $message = 'Пожалуйста, заполните все поля.';
 
@@ -25,6 +44,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $message = 'Некорректная дата.';
 
     } else {
+        /**
+         * Проверка на существование книги с такими же данными.
+         */
         $stmt = $pdo->prepare("
             SELECT COUNT(*) 
             FROM books 
@@ -40,6 +62,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $message = 'Книга с такими данными уже существует.';
         } else {
             try {
+                /**
+                 * Добавление новой книги в базу данных.
+                 */
                 $stmt = $pdo->prepare("
                     INSERT INTO books (title, author, category_id, description, created_at) VALUES (?, ?, ?, ?, ?)
                 ");
@@ -93,6 +118,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <select name="category" required>
                 <option value="">Select...</option>
                 <?php
+                /**
+                 * Получение списка категорий из базы данных.
+                 */
                 $stmt = $pdo->query("SELECT id, name FROM categories");
                 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)): ?>
                     <option value="<?= $row['id'] ?>"
